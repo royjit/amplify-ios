@@ -106,7 +106,8 @@ final public class AWSDataStorePlugin: DataStoreCategoryPlugin {
             return
         }
 
-        storageEngine = try StorageEngine(isSyncEnabled: isSyncEnabled)
+        storageEngine = try StorageEngine(isSyncEnabled: isSyncEnabled,
+                                          configuration: configuration)
         if #available(iOS 13.0, *) {
             setupStorageSink()
         }

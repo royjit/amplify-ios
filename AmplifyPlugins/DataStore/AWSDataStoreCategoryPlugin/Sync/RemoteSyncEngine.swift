@@ -54,6 +54,7 @@ class RemoteSyncEngine: RemoteSyncEngineBehavior {
     /// MutationEvents, sync metadata, and conflict resolution metadata. Immediately initializes the incoming mutation
     /// queue so it can begin accepting incoming mutations from DataStore.
     convenience init(storageAdapter: StorageEngineAdapter,
+                     configuration: DataStoreConfiguration,
                      outgoingMutationQueue: OutgoingMutationQueueBehavior? = nil,
                      initialSyncOrchestratorFactory: InitialSyncOrchestratorFactory? = nil,
                      reconciliationQueueFactory: IncomingEventReconciliationQueueFactory? = nil,
@@ -62,7 +63,8 @@ class RemoteSyncEngine: RemoteSyncEngineBehavior {
                      requestRetryablePolicy: RequestRetryablePolicy? = nil) throws {
         let mutationDatabaseAdapter = try AWSMutationDatabaseAdapter(storageAdapter: storageAdapter)
         let awsMutationEventPublisher = AWSMutationEventPublisher(eventSource: mutationDatabaseAdapter)
-        let outgoingMutationQueue = outgoingMutationQueue ?? OutgoingMutationQueue()
+        let outgoingMutationQueue = outgoingMutationQueue ?? OutgoingMutationQueue(storageAdapter: storageAdapter,
+                                                                                   configuration: configuration)
         let reconciliationQueueFactory = reconciliationQueueFactory ??
             AWSIncomingEventReconciliationQueue.init(modelTypes:api:storageAdapter:)
         let initialSyncOrchestratorFactory = initialSyncOrchestratorFactory ??

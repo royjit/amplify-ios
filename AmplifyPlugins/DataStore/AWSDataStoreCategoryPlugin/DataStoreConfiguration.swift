@@ -20,8 +20,9 @@ public struct DataStoreConclictData {
 }
 
 /// Conflict Handler function typealias. The function is used during a conflict that
-/// could not be resolved and requires a decision from the consumer.
-public typealias DataStoreConflictHandler = (DataStoreConclictData, DataStoreConflictHandlerResolver) -> Void
+/// could not be resolved and requires a decision from the consumer. The consumer can call other methods (optionally
+/// asynchronous) before calling the escaping `DataStoreConflictHandlerResolver` with the resolution,
+public typealias DataStoreConflictHandler = (DataStoreConclictData, @escaping DataStoreConflictHandlerResolver) -> Void
 
 /// Callback for the `DataStoreConflictHandler`.
 public typealias DataStoreConflictHandlerResolver = (DataStoreConflictHandlerResult) -> Void
@@ -30,13 +31,13 @@ public typealias DataStoreConflictHandlerResolver = (DataStoreConflictHandlerRes
 public enum DataStoreConflictHandlerResult {
 
     /// Discard the local changes in favor of the remote ones.
-    case discard
+    case applyRemote
 
     /// Keep the local changes.
-    case keep
+    case retryLocal
 
     /// Return a new `Model` instance that should used instead of the local and remote changes.
-    case new(Model)
+    case retry(Model)
 }
 
 /// The `DataStore` plugin configuration object.
@@ -44,16 +45,16 @@ public struct DataStoreConfiguration {
 
     /// A callback function called on unhandled errors
     public let errorHandler: DataStoreErrorHandler
-    
+
     /// A callback called when a conflict could not be resolved by the service
     public let conflictHandler: DataStoreConflictHandler
-    
+
     /// How often the sync engine will run (in seconds)
     public let syncInterval: TimeInterval
-    
+
     /// The number of records to sync per execution
     public let syncMaxRecords: UInt
-    
+
     /// The page size of each sync execution
     public let syncPageSize: UInt
 
@@ -105,7 +106,7 @@ extension DataStoreConfiguration {
     /// The default configuration.
     public static var `default`: DataStoreConfiguration {
         .custom(conflictHandler: { _, resolve  in
-            resolve(.discard)
+            resolve(.applyRemote)
         })
     }
 
