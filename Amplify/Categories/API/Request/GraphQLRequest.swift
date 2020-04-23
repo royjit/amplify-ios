@@ -5,7 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-public struct GraphQLRequest<R: Decodable> {
+public struct GraphQLRequest<R: Decodable, E: Decodable> {
 
     /// The name of graphQL API being invoked, as specified in `amplifyconfiguration.json`.
     /// Specify this parameter when more than one GraphQL API is configured.
@@ -25,15 +25,20 @@ public struct GraphQLRequest<R: Decodable> {
     /// The data at that decode path is a list of Todo objects so `responseType` should be `[Todo].self`
     public let decodePath: String?
 
+    /// Type to decode the graphql response error extensions to
+    public let extensionType: E.Type
+
     public init(apiName: String? = nil,
                 document: String,
                 variables: [String: Any]? = nil,
                 responseType: R.Type,
-                decodePath: String? = nil) {
+                decodePath: String? = nil,
+                extensionType: E.Type) {
         self.apiName = apiName
         self.document = document
         self.variables = variables
         self.responseType = responseType
         self.decodePath = decodePath
+        self.extensionType = extensionType
     }
 }

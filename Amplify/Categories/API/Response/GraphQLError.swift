@@ -6,7 +6,7 @@
 //
 
 /// The error format according to https://graphql.github.io/graphql-spec/June2018/#sec-Errors
-public struct GraphQLError: Decodable {
+public struct GraphQLError<Extension: Decodable>: Decodable {
 
     /// Description of the error
     public let message: String
@@ -18,7 +18,7 @@ public struct GraphQLError: Decodable {
     public let path: [JSONValue]?
 
     /// Additional map of of errors
-    public let extensions: [String: JSONValue]?
+    public let extensions: Extension?
 
     /// Both `line` and `column` are positive numbers describing the beginning of an associated syntax element
     public struct Location: Decodable {

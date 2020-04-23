@@ -9,20 +9,20 @@ import Foundation
 
 public typealias RawGraphQLResponse = String
 
-public typealias GraphQLResponse<ResponseType: Decodable> =
-    Result<ResponseType, GraphQLResponseError<ResponseType>>
+public typealias GraphQLResponse<ResponseType: Decodable, ExtensionType: Decodable> =
+    Result<ResponseType, GraphQLResponseError<ResponseType, ExtensionType>>
 
 /// An error response from a GraphQL API
-public enum GraphQLResponseError<ResponseType: Decodable>: AmplifyError {
+public enum GraphQLResponseError<ResponseType: Decodable, ExtensionType: Decodable>: AmplifyError {
 
     /// An error response. The associated value will be an array of GraphQLError objects that contain service-specific
     /// error messages. https://graphql.github.io/graphql-spec/June2018/#sec-Errors
-    case error([GraphQLError])
+    case error([GraphQLError<ExtensionType>])
 
     /// A partially-successful response. The `ResponseType` associated value will contain as much of the payload as the
     /// service was able to fulfill, and the errors will be an array of GraphQLError that contain service-specific error
     /// messages.
-    case partial(ResponseType, [GraphQLError])
+    case partial(ResponseType, [GraphQLError<ExtensionType>])
 
     /// A successful, or partially-successful response from the server that could not be transformed into the specified
     /// response type. The RawGraphQLResponse contains the entire response from the service, including data and errors.

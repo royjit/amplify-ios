@@ -5,15 +5,15 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-public typealias GraphQLOperation<R: Decodable> = AmplifyOperation<
+public typealias GraphQLOperation<R: Decodable, E: Decodable> = AmplifyOperation<
     GraphQLOperationRequest<R>,
     Void,
-    GraphQLResponse<R>,
+    GraphQLResponse<R, E>,
     APIError>
 
-public typealias GraphQLSubscriptionOperation<R: Decodable> = AmplifyOperation<
+public typealias GraphQLSubscriptionOperation<R: Decodable, E: Decodable> = AmplifyOperation<
     GraphQLOperationRequest<R>,
-    SubscriptionEvent<GraphQLResponse<R>>,
+    SubscriptionEvent<GraphQLResponse<R, E>>,
     Void,
     APIError>
 

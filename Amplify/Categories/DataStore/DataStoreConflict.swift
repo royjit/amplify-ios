@@ -9,6 +9,6 @@
 public struct DataStoreSyncConflict {
     public let localModel: Model
     public let remoteModel: Model
-    public let errors: [GraphQLError]?
+    public let errors: [GraphQLError<[String: JSONValue]>]?
     public let mutationType: GraphQLMutationType
 }

@@ -34,7 +34,7 @@ class APICategoryClientGraphQLTests: XCTestCase {
             }
         }
 
-        let request = GraphQLRequest(document: "", variables: nil, responseType: JSONValue.self)
+        let request = GraphQLRequest(document: "", variables: nil, responseType: JSONValue.self, extensionType: [String: JSONValue].self)
         _ = Amplify.API.query(request: request) { _ in }
 
         waitForExpectations(timeout: 0.5)
@@ -49,7 +49,7 @@ class APICategoryClientGraphQLTests: XCTestCase {
             }
         }
 
-        let request = GraphQLRequest(document: "", variables: nil, responseType: JSONValue.self)
+        let request = GraphQLRequest(document: "", variables: nil, responseType: JSONValue.self, extensionType: [String: JSONValue].self)
         _ = Amplify.API.mutate(request: request) { _ in }
 
         waitForExpectations(timeout: 0.5)

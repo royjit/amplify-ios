@@ -22,7 +22,8 @@ extension GraphQLRequest {
     /// - Returns: the `GraphQLRequest` ready to be used
     public static func mutation<M: Model>(of model: M,
                                           where predicate: QueryPredicate? = nil,
-                                          type: GraphQLMutationType) -> GraphQLRequest<M> {
+                                          extensionType: E.Type,
+                                          type: GraphQLMutationType) -> GraphQLRequest<M, E> {
         let modelType = ModelRegistry.modelType(from: model.modelName) ?? Swift.type(of: model)
 
         var documentBuilder = ModelBasedGraphQLDocumentBuilder(modelType: modelType, operationType: .mutation)
@@ -44,10 +45,12 @@ extension GraphQLRequest {
         }
 
         let document = documentBuilder.build()
-        return GraphQLRequest<M>(document: document.stringValue,
-                                 variables: document.variables,
-                                 responseType: M.self,
-                                 decodePath: document.name)
+        
+        return GraphQLRequest<M, E>(document: document.stringValue,
+                                    variables: document.variables,
+                                    responseType: M.self,
+                                    decodePath: document.name,
+                                    extensionType: extensionType)
     }
 
     /// Creates a `GraphQLRequest` that represents a query that expects a single value as a result.
@@ -61,16 +64,17 @@ extension GraphQLRequest {
     ///
     /// - seealso: `GraphQLQuery`, `GraphQLQueryType.get`
     public static func query<M: Model>(from modelType: M.Type,
-                                       byId id: String) -> GraphQLRequest<M?> {
+                                       byId id: String) -> GraphQLRequest<M?, E> {
         var documentBuilder = ModelBasedGraphQLDocumentBuilder(modelType: modelType, operationType: .query)
         documentBuilder.add(decorator: DirectiveNameDecorator(type: .get))
         documentBuilder.add(decorator: ModelIdDecorator(id: id))
         let document = documentBuilder.build()
 
-        return GraphQLRequest<M?>(document: document.stringValue,
-                                  variables: document.variables,
-                                  responseType: M?.self,
-                                  decodePath: document.name)
+        return GraphQLRequest<M?, E>(document: document.stringValue,
+                                     variables: document.variables,
+                                     responseType: M?.self,
+                                     decodePath: document.name,
+                                     extensionType: )
     }
 
     /// Creates a `GraphQLRequest` that represents a query that expects multiple values as a result.
