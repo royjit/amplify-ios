@@ -28,7 +28,15 @@ extension RemoteSyncEngine {
         }
     }
 
-    private func getRetryAdvice(error: Error) -> RequestRetryAdvice {
+    private func getRetryAdvice(error: AmplifyError) -> RequestRetryAdvice {
+        if isAuthenticationRequired(error: error) {
+            // TODO: RequestRetryablePolicy should take in some information about this is an auth required attempt
+            let advice = requestRetryablePolicy.retryRequestAdvice(urlError: nil,
+                                                                   httpURLResponse: nil,
+                                                                   attemptNumber: currentAttemptNumber)
+            return advice
+        }
+
         //TODO: Parse error from the receive completion to use as an input into getting retry advice.
         //      For now, specifying not connected to internet to force a retry up to our maximum
         let urlError = URLError(.notConnectedToInternet)
@@ -36,6 +44,14 @@ extension RemoteSyncEngine {
                                                                httpURLResponse: nil,
                                                                attemptNumber: currentAttemptNumber)
         return advice
+    }
+
+    private func isAuthenticationRequired(error: AmplifyError) -> Bool {
+        if let authError = error as? AuthError {
+            return true
+        }
+
+        return false
     }
 
     private func scheduleRestart(advice: RequestRetryAdvice) {

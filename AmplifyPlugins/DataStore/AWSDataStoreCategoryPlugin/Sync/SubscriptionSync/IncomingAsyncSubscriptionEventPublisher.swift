@@ -41,7 +41,7 @@ final class IncomingAsyncSubscriptionEventPublisher: Cancellable {
 
     private let incomingSubscriptionEvents: PassthroughSubject<Event, DataStoreError>
 
-    init(modelType: Model.Type, api: APICategoryGraphQLBehavior) {
+    init(modelType: Model.Type, api: APICategoryGraphQLBehavior, auth: AuthCategoryBehavior?) {
         let log = Amplify.Logging.logger(forCategory: "IncomingAsyncSubscriptionEventPublisher")
         self.onCreateConnected = false
         self.onUpdateConnected = false
@@ -60,6 +60,7 @@ final class IncomingAsyncSubscriptionEventPublisher: Cancellable {
             for: modelType,
             subscriptionType: .onCreate,
             api: api,
+            auth: auth,
             listener: onCreateListener)
 
         let onUpdateListener: GraphQLSubscriptionOperation<Payload>.EventListener = onUpdateListenerHandler(event:)
@@ -68,6 +69,7 @@ final class IncomingAsyncSubscriptionEventPublisher: Cancellable {
             for: modelType,
             subscriptionType: .onUpdate,
             api: api,
+            auth: auth,
             listener: onUpdateListener)
 
         let onDeleteListener: GraphQLSubscriptionOperation<Payload>.EventListener = onDeleteListenerHandler(event:)
@@ -76,6 +78,7 @@ final class IncomingAsyncSubscriptionEventPublisher: Cancellable {
             for: modelType,
             subscriptionType: .onDelete,
             api: api,
+            auth: auth,
             listener: onDeleteListener)
     }
 
@@ -130,11 +133,21 @@ final class IncomingAsyncSubscriptionEventPublisher: Cancellable {
     static func apiSubscription(for modelType: Model.Type,
                                 subscriptionType: GraphQLSubscriptionType,
                                 api: APICategoryGraphQLBehavior,
+                                auth: AuthCategoryBehavior?,
                                 listener: @escaping GraphQLSubscriptionOperation<Payload>.EventListener)
         -> GraphQLSubscriptionOperation<Payload> {
 
-            let request = GraphQLRequest<Payload>.subscription(to: modelType,
-                                                               subscriptionType: subscriptionType)
+            let request: GraphQLRequest<Payload>
+            if let auth = auth, let user = auth.getCurrentUser() {
+                // TODO: check model schema to see what is the identityClaim before adding it as ownerId
+                request = GraphQLRequest<Payload>.subscription(to: modelType,
+                                                               subscriptionType: subscriptionType,
+                                                               ownerId: user.username)
+            } else {
+                request = GraphQLRequest<Payload>.subscription(to: modelType,
+                subscriptionType: subscriptionType)
+            }
+
             let operation = api.subscribe(request: request, listener: listener)
             return operation
     }

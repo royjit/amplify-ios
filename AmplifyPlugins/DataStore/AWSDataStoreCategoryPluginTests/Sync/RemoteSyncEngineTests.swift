@@ -15,6 +15,7 @@ import Combine
 
 class RemoteSyncEngineTests: XCTestCase {
     var apiPlugin: MockAPICategoryPlugin!
+    var authPlugin: MockAuthCategoryPlugin!
 
     var amplifyConfig: AmplifyConfiguration!
     var storageAdapter: StorageEngineAdapter!
